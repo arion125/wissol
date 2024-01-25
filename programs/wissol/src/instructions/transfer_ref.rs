@@ -9,6 +9,18 @@ use anchor_spl::token::Transfer;
 use crate::*;
 
 // create ref unbreakable link and transfer funds from payer to: escrow, project, wissol
+
+/* 
+
+    The idea is good, you need to make the fee_vault an ATA if you're doing token. SystemAccount work only to
+    contain SOL. Probably you can just hardcode the keypair [adderss = ... ]
+    and send it as UncheckedAccount or TokenAccount.
+
+    To make the code more clean i'm gonna suggest some name changing
+
+    What do you need Referee for?
+
+*/
 #[derive(Accounts)]
 pub struct TransferRef<'info> {
     #[account(mut)]
@@ -19,8 +31,8 @@ pub struct TransferRef<'info> {
         associated_token::mint = mint,
         associated_token::authority = payer,
     )]
-    pub payer_token_ata: Account<'info, TokenAccount>,
-
+    pub payer_token_ata: Account<'info, TokenAccount>, // PayerAta
+ 
     #[account(
         init_if_needed,
         seeds = [REFEREE_SEED.as_bytes(), payer.key().as_ref()],
@@ -28,12 +40,13 @@ pub struct TransferRef<'info> {
         space = Referee::INIT_SPACE,
         bump,
     )]
-    pub payer_referee_account: Account<'info, Referee>,
+    pub payer_referee_account: Account<'info, Referee>, 
 
-    pub referral_account: Account<'info, Referral>,
+    pub referral_account: Account<'info, Referral>, 
 
     pub mint: Account<'info, Mint>,
 
+    // This is not needed because accomplish the same thing as the escrow_mint_ata go into intialize_referral.rs and see the comment
     pub nft_escrow: Account<'info, NftEscrow>,
 
     #[account(
@@ -44,6 +57,7 @@ pub struct TransferRef<'info> {
     )]
     pub escrow_mint_ata: Account<'info, TokenAccount>,
 
+    // This needs to be checked in some way tbh or i can just put whatever i want as an account and pocket the amount.
     pub project: SystemAccount<'info>,
 
     #[account(
@@ -70,6 +84,7 @@ pub struct TransferRef<'info> {
 }
 
 impl<'info> TransferRef<'info> {
+    // Super exploitable put the amount here as input !!!!! I can just say that the amount is 10x the real amount and with a 10% royalties i drain the signer
     pub fn transfer_ref(ctx: Context<TransferRef>, amount: u64) -> Result<()> {
         let decimals = 10u64.pow(ctx.accounts.mint.decimals as u32);
         let total_amount = amount * decimals;
