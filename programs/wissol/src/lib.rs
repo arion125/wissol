@@ -9,7 +9,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("GmHsgKavc7auqcRSbjDNrFdGvsKFvbp8NKuukDXJkVVH");
+declare_id!("64drnnxTSEe9fpeTEQ3MeVtm1Vztzf7bR4Cigs9X7S5j");
 
 #[program]
 pub mod wissol {
